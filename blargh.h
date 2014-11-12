@@ -449,7 +449,7 @@ class blarghd : boost::asio::coroutine
 
                 do
                 {
-//                    yield m_socket->async_read_some(boost::asio::buffer(*m_buffer), *this);
+                    yield m_socket->async_read_some(boost::asio::buffer(*m_buffer), *this);
 
                     boost::tie(m_valid_req, boost::tuples::ignore)
                         = m_req_parser.parse(*m_req,
