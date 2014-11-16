@@ -1,8 +1,10 @@
 /***
- * just simply a simple test of testing the test thing for testing purpose
+ * 
+ * primitive wrapper for the OCC API
  *
  * coder@computer.org
  * coder@0xc0d3.org
+ *
  *
  */
 #ifndef OCCD_H
@@ -11,22 +13,61 @@
 #include <sstream>
 #include <iomanip>
 #include <string>
+#include <regex>
 #include <boost/lexical_cast.hpp>
 #include <boost/regex.hpp>
 #include "blargh.h"
+
+//beg OCC includes
+
+#include <config.h>
+#include <Standard_Type.hxx>
+#include <Standard.hxx>
+#include <Standard_Boolean.hxx>
+
+#include <IGESControl_Controller.hxx>
+#include <IGESControl_Reader.hxx>
+#include <Message_MsgFile.hxx>
+#include <TopoDS.hxx>
+#include <TColStd_HSequenceOfTransient.hxx>
+#include <TopoDS_Shape.hxx>
+#include <TopoDS_Edge.hxx>
+#include <TColStd_HSequenceOfTransient.hxx>
+#include <STEPControl_Reader.hxx>
+#include <IGESControl_Reader.hxx>
+#include <BRepTools.hxx>
+#include <BRepMesh.hxx>
+#include <BRepMesh_IncrementalMesh.hxx>
+#include <Bnd_Box.hxx>
+#include <BRepBndLib.hxx>
+#include <BRepTools.hxx>
+#include <TopoDS_Iterator.hxx>
+#include <TopExp.hxx>
+#include <Poly_Triangulation.hxx>
+#include <Poly_Array1OfTriangle.hxx>
+#include <BRep_Tool.hxx>
+#include <TopExp_Explorer.hxx>
+
+#include <XSControl_WorkSession.hxx>
+
+
+//end OCC includes
 
 using namespace blargh;
 static std::string data_root_ = "./data_dump/";
 
 extern "C"
 {
-//    #include <string.h>
-//    #include "./hidapi/hidapi/hidapi.h"
+
 }
 struct occrest
 {
+    XSControl_WorkSession worksession;
+    std::shared_ptr< STEPControl_Reader > stepreader_p;
     static void init()
     {
+        //STEPControl_Reader reader; //generates a WorkSession
+       // XSControll
 
     }
     struct GET
@@ -54,8 +95,8 @@ struct occrest
 
             if (path[path.size() - 1] == '/')
             {
-                path += "main.html";
-
+                //pseudo-directory foo? capabilities?
+                //path += "main.html";
             }
 
             std::size_t last_slash_pos = path.find_last_of("/");
@@ -76,6 +117,11 @@ struct occrest
             }
 
             resp.status = status_type::ok;
+            boost::regex stp {"\\w*\\.(stp|step|STP|STEP)"};
+            boost::regex iges {"\\w*\\.(igs|IGS|iges|IGES)"};
+            std::cerr << "from GET" << std::endl;
+            std::cerr << "full_path = " << full_path << std::endl;
+            /*
             char buf[512];
             while (is.read(buf, sizeof(buf)).gcount() > 0)
                 resp.content.append(buf, is.gcount());
@@ -85,6 +131,7 @@ struct occrest
                 boost::lexical_cast<std::string>(resp.content.size());
             resp.headers[1].name = "Content-Type";
             resp.headers[1].value = e2t[extension];
+            */
 
         }
     };

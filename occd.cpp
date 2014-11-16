@@ -1,5 +1,7 @@
 /***
- * just simply a simple test of testing the test thing for testing purpose
+ * just a simple wrapperd for occ
+ *
+ * OCC documentation -> http://dev.opencascade.org/doc/refman/html/
  *
  * coder@computer.org
  * coder@0xc0d3.org
