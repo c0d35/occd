@@ -12,6 +12,7 @@
 #include <fstream>
 #include <sstream>
 #include <iomanip>
+#include <limits>
 #include <string>
 #include <regex>
 
@@ -176,9 +177,21 @@ struct occrest
                             Space3::PointT v[3];
                             for(int n : { 0, 1, 2 })
                             {
-                                v[n][0] = p[n].X();
-                                v[n][1] = p[n].Y();
-                                v[n][2] = p[n].Z();
+                                v[n][0] = 
+                                    std::numeric_limits<Space3::ValueType>::
+                                    max() +
+                                    std::numeric_limits<Space3::ValueType>::
+                                    max() * p[n].X();
+                                v[n][1] = 
+                                    std::numeric_limits<Space3::ValueType>::
+                                    max() +
+                                    std::numeric_limits<Space3::ValueType>::
+                                    max() * p[n].Y();
+                                v[n][2] = 
+                                    std::numeric_limits<Space3::ValueType>::
+                                    max() +
+                                    std::numeric_limits<Space3::ValueType>::
+                                    max() * p[n].Z();
                             }
                           //  for(auto v_: v){
                                 //for(int n : { 0, 1, 2 })
