@@ -62,13 +62,15 @@ extern "C"
 }
 struct occrest
 {
-    XSControl_WorkSession worksession;
-    std::shared_ptr< STEPControl_Reader > stepreader_p;
+//    std::shared_ptr< XSControl_WorkSession > worksession_p;
+//    XSControl_WorkSession worksession;
+
+    //std::shared_ptr< STEPControl_Reader > stepreader_p;
     static void init()
     {
         //STEPControl_Reader reader; //generates a WorkSession
        // XSControll
-
+       //stepreader_p = new STEPC(worksession)
     }
     struct GET
     {
@@ -121,6 +123,25 @@ struct occrest
             boost::regex iges {"\\w*\\.(igs|IGS|iges|IGES)"};
             std::cerr << "from GET" << std::endl;
             std::cerr << "full_path = " << full_path << std::endl;
+
+            XSControl_WorkSession worksession;
+            if(boost::regex_search(full_path, matches, stp))
+            {
+                std::cerr << "match!" << std::endl;
+                STEPControl_Reader stepreader;
+
+                stepreader.ReadFile(full_path.c_str());
+                
+                //Handle( TColStd_HSequenceOfTransient ) h
+                int numofroots = stepreader.NbRootsForTransfer();
+                std::cerr << "NbRootsForTransfer() = " << numofroots << std::endl;
+
+
+
+            }
+
+
+
             /*
             char buf[512];
             while (is.read(buf, sizeof(buf)).gcount() > 0)

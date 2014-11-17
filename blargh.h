@@ -1,5 +1,5 @@
 /***
- * kinda rift rest d
+ *
  *
  * coder@computer.org
  * coder@0xc0d3.org
@@ -9,6 +9,7 @@
 #define BLARGH_H
 #include <string>
 #include <vector>
+#include <regex>
 
 namespace blargh {
     enum limits : short { MAX_METHOD_LENGTH = 8, MAX_FT_LENGTH = 8 };
@@ -104,7 +105,8 @@ namespace blargh {
                     if(space0_str.empty()) return boost::make_tuple(static_cast<boost::tribool>(boost::indeterminate), beg);
                     beg += req.method.size() + space0_str.size();
                     le_string = matches[3];
-                    boost::regex http_exp{"^([/A-Za-z0-9_\\.-]+)?( )?(HTTP/(\\d\\.\\d))?(\\r\\n)?(.*)"};
+                    boost::regex 
+                        http_exp{"^([/A-Za-z0-9_\\.-]+)?( )?(HTTP/(\\d\\.\\d))?(\\r\\n)?(.*)"};
                     boost::regex_match(le_string, matches, http_exp);
                     req.uri = matches[1];
                     beg += req.uri.size();
@@ -182,7 +184,7 @@ struct response
     static response default_response(status_type status);
 };
 
-static                    std::string doc_root_; //clean it up fucker
+static                    std::string doc_root_; //clean it up sucker
 
 namespace method_strings //what the fuck have i done?
 {
