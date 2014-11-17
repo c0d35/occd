@@ -14,17 +14,18 @@
 #include <iomanip>
 #include <string>
 #include <regex>
+
 #include <boost/lexical_cast.hpp>
 #include <boost/regex.hpp>
+
 #include "blargh.h"
+#include "../space/le_space.h"
 
 //beg OCC includes
-
 #include <config.h>
 #include <Standard_Type.hxx>
 #include <Standard.hxx>
 #include <Standard_Boolean.hxx>
-
 #include <IGESControl_Controller.hxx>
 #include <IGESControl_Reader.hxx>
 #include <Message_MsgFile.hxx>
@@ -47,14 +48,15 @@
 #include <Poly_Array1OfTriangle.hxx>
 #include <BRep_Tool.hxx>
 #include <TopExp_Explorer.hxx>
-
 #include <XSControl_WorkSession.hxx>
-
-
 //end OCC includes
 
 using namespace blargh;
+//using namespace space;
 static std::string data_root_ = "./data_dump/";
+
+typedef EuklidianSpaceCompressedFuint16< 3 > Space3;
+
 
 extern "C"
 {
@@ -131,10 +133,89 @@ struct occrest
                 STEPControl_Reader stepreader;
 
                 stepreader.ReadFile(full_path.c_str());
-                
+
                 //Handle( TColStd_HSequenceOfTransient ) h
-                int numofroots = stepreader.NbRootsForTransfer();
-                std::cerr << "NbRootsForTransfer() = " << numofroots << std::endl;
+                Standard_Integer NbTrans = stepreader.TransferRoots();
+                std::cerr << "NbRootsForTransfer() = " << NbTrans
+                    << std::endl;
+                TopoDS_Shape resulting_shape = stepreader.OneShape();
+                TopoDS_Iterator topo_iter;
+                TopExp_Explorer faceExp(resulting_shape, TopAbs_FACE);
+
+                for(; faceExp.More(); faceExp.Next())
+                {
+                    TopLoc_Location L = faceExp.Current().Location();
+                    BRepMesh::Mesh(faceExp.Current(), .1);
+                    Handle (Poly_Triangulation) facing =
+                        BRep_Tool::Triangulation(
+                                TopoDS::Face(faceExp.Current()),L);
+                    if (!facing.IsNull())
+                    {
+                        TopExp_Explorer vertexExp(faceExp.Current(),
+                                TopAbs_VERTEX);
+                        const Poly_Array1OfTriangle & triangles =
+                            facing->Triangles();
+                        const TColgp_Array1OfPnt & nodes = facing->Nodes();
+                        std::cerr << "Number of Triangles: " 
+                            << facing->NbTriangles() << std::endl;
+                        for ( int i=facing->NbTriangles(); i >= 1; --i )
+                        {
+                            Poly_Triangle triangle = triangles(i);
+
+                            Standard_Integer node0,node1,node2;
+                            triangle.Get(node0, node1, node2);
+
+                            gp_Pnt p[3];
+                            p[0] = nodes(node0).Transformed(L);
+                            p[1] = nodes(node1).Transformed(L);
+                            p[2] = nodes(node2).Transformed(L);
+
+                            //Vector3Dd v_0(v0.X(), v0.Y(), v0.Z());
+                            //Vector3Dd v_1(v1.X(), v1.Y(), v1.Z());
+                            //Vector3Dd v_2(v2.X(), v2.Y(), v2.Z());
+                            Space3::PointT v[3];
+                            for(int n : { 0, 1, 2 })
+                            {
+                                v[n][0] = p[n].X();
+                                v[n][1] = p[n].Y();
+                                v[n][2] = p[n].Z();
+                            }
+                          //  for(auto v_: v){
+                                //for(int n : { 0, 1, 2 })
+                          //      v_[0] =  
+/*
+                            std::string triangle_string;
+                            triangle_string +=  "{\n";
+                            triangle_string +=  "\"v0\": {";
+                            triangle_string +=  " \"x\": ";
+                            triangle_string += std::to_string(v_0[0]);
+                            triangle_string +=  ", \"y\": ";
+                            triangle_string += std::to_string(v_0[1]);
+                            triangle_string +=  ", \"z\": ";
+                            triangle_string += std::to_string(v_0[2]);
+                            triangle_string +=  "   },\n";
+                            triangle_string +=  "\"v1\": {";
+                            triangle_string +=  " \"x\": ";
+                            triangle_string += std::to_string(v_1[0]);
+                            triangle_string +=  ", \"y\": ";
+                            triangle_string += std::to_string(v_1[1]);
+                            triangle_string +=  ", \"z\": ";
+                            triangle_string += std::to_string(v_1[2]);
+                            triangle_string +=  "   },\n";
+                            triangle_string +=  "\"v2\": {";
+                            triangle_string +=  " \"x\": ";
+                            triangle_string += std::to_string(v_2[0]);
+                            triangle_string +=  ", \"y\": ";
+                            triangle_string += std::to_string(v_2[1]);
+                            triangle_string +=  ", \"z\": ";
+                            triangle_string += std::to_string(v_2[2]);
+                            triangle_string +=  "   },\n";
+                            triangle_string +=  "}\n";
+                            */
+
+                        }
+                    }
+                }
 
 
 
@@ -143,16 +224,16 @@ struct occrest
 
 
             /*
-            char buf[512];
-            while (is.read(buf, sizeof(buf)).gcount() > 0)
-                resp.content.append(buf, is.gcount());
-            resp.headers.resize(2);
-            resp.headers[0].name = "Content-Length";
-            resp.headers[0].value = 
-                boost::lexical_cast<std::string>(resp.content.size());
-            resp.headers[1].name = "Content-Type";
-            resp.headers[1].value = e2t[extension];
-            */
+               char buf[512];
+               while (is.read(buf, sizeof(buf)).gcount() > 0)
+               resp.content.append(buf, is.gcount());
+               resp.headers.resize(2);
+               resp.headers[0].name = "Content-Length";
+               resp.headers[0].value = 
+               boost::lexical_cast<std::string>(resp.content.size());
+               resp.headers[1].name = "Content-Type";
+               resp.headers[1].value = e2t[extension];
+               */
 
         }
     };
@@ -179,7 +260,7 @@ struct occrest
                 return;
             }
             std::string path(matches[5]);
-            
+
             if (path.empty() || path[0] != '/' || path.find("..")
                     != std::string::npos)
             {
