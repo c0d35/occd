@@ -183,7 +183,7 @@ struct occrest
                                     max() +
                                     std::numeric_limits<Space3::ValueType>::
                                     max() * p[n].X();
-                                [n][1] = 
+                                v[n][1] = 
                                     std::numeric_limits<Space3::ValueType>::
                                     max() +
                                     std::numeric_limits<Space3::ValueType>::
