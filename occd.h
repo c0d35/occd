@@ -18,6 +18,7 @@
 
 #include <boost/lexical_cast.hpp>
 #include <boost/regex.hpp>
+#include <boost/range/irange.hpp>
 
 #include "blargh.h"
 #include "../space/le_space.h"
@@ -146,7 +147,7 @@ struct occrest
                 for(; faceExp.More(); faceExp.Next())
                 {
                     TopLoc_Location L = faceExp.Current().Location();
-                    BRepMesh::Mesh(faceExp.Current(), .1);
+                    BRepMesh::Mesh(faceExp.Current(), 1.0);
                     Handle (Poly_Triangulation) facing =
                         BRep_Tool::Triangulation(
                                 TopoDS::Face(faceExp.Current()),L);
@@ -182,7 +183,7 @@ struct occrest
                                     max() +
                                     std::numeric_limits<Space3::ValueType>::
                                     max() * p[n].X();
-                                v[n][1] = 
+                                [n][1] = 
                                     std::numeric_limits<Space3::ValueType>::
                                     max() +
                                     std::numeric_limits<Space3::ValueType>::
@@ -192,6 +193,10 @@ struct occrest
                                     max() +
                                     std::numeric_limits<Space3::ValueType>::
                                     max() * p[n].Z();
+                            }
+                            for(int n : boost::irange(0,4))
+                            {
+                                ;
                             }
                           //  for(auto v_: v){
                                 //for(int n : { 0, 1, 2 })
