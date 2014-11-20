@@ -176,6 +176,7 @@ struct occrest
                             //Vector3Dd v_1(v1.X(), v1.Y(), v1.Z());
                             //Vector3Dd v_2(v2.X(), v2.Y(), v2.Z());
                             Space3::PointT v[3];
+                            Space3::PointT d[3]; 
                             for(int n : { 0, 1, 2 })
                             {
                                 v[n][0] = 
@@ -194,9 +195,9 @@ struct occrest
                                     std::numeric_limits<Space3::ValueType>::
                                     max() * p[n].Z();
                             }
-                            for(int n : boost::irange(0,4))
+                            for(int n : boost::irange(0,2))
                             {
-                                ;
+                                d[n] = v[(n + 1) % 3] - v[n];
                             }
                           //  for(auto v_: v){
                                 //for(int n : { 0, 1, 2 })
