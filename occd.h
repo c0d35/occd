@@ -58,6 +58,9 @@ using namespace blargh;
 static std::string data_root_ = "./data_dump/";
 
 typedef EuklidianSpaceCompressedFuint16< 3 > Space3;
+typedef EuklidianSpaceCompressedFuint16< 4 > Space4;
+
+Space4 *s_space4p;
 
 
 extern "C"
@@ -75,6 +78,7 @@ struct occrest
         //STEPControl_Reader reader; //generates a WorkSession
        // XSControll
        //stepreader_p = new STEPC(worksession)
+       s_space4p = new Space4;
     }
     struct GET
     {
@@ -128,6 +132,8 @@ struct occrest
             std::cerr << "from GET" << std::endl;
             std::cerr << "full_path = " << full_path << std::endl;
 
+            std::stringstream ps;
+          //  ps << "[";
             XSControl_WorkSession worksession;
             if(boost::regex_search(full_path, matches, stp))
             {
@@ -172,11 +178,8 @@ struct occrest
                             p[1] = nodes(node1).Transformed(L);
                             p[2] = nodes(node2).Transformed(L);
 
-                            //Vector3Dd v_0(v0.X(), v0.Y(), v0.Z());
-                            //Vector3Dd v_1(v1.X(), v1.Y(), v1.Z());
-                            //Vector3Dd v_2(v2.X(), v2.Y(), v2.Z());
-                            Space3::PointT v[3];
-                            Space3::PointT d[3]; 
+                            Space4::PointT v[3];
+                            Space4::PointT d[3]; 
                             for(int n : { 0, 1, 2 })
                             {
                                 v[n][0] = 
@@ -199,42 +202,34 @@ struct occrest
                             {
                                 d[n] = v[(n + 1) % 3] - v[n];
                             }
-                          //  for(auto v_: v){
-                                //for(int n : { 0, 1, 2 })
-                          //      v_[0] =  
-/*
-                            std::string triangle_string;
-                            triangle_string +=  "{\n";
-                            triangle_string +=  "\"v0\": {";
-                            triangle_string +=  " \"x\": ";
-                            triangle_string += std::to_string(v_0[0]);
-                            triangle_string +=  ", \"y\": ";
-                            triangle_string += std::to_string(v_0[1]);
-                            triangle_string +=  ", \"z\": ";
-                            triangle_string += std::to_string(v_0[2]);
-                            triangle_string +=  "   },\n";
-                            triangle_string +=  "\"v1\": {";
-                            triangle_string +=  " \"x\": ";
-                            triangle_string += std::to_string(v_1[0]);
-                            triangle_string +=  ", \"y\": ";
-                            triangle_string += std::to_string(v_1[1]);
-                            triangle_string +=  ", \"z\": ";
-                            triangle_string += std::to_string(v_1[2]);
-                            triangle_string +=  "   },\n";
-                            triangle_string +=  "\"v2\": {";
-                            triangle_string +=  " \"x\": ";
-                            triangle_string += std::to_string(v_2[0]);
-                            triangle_string +=  ", \"y\": ";
-                            triangle_string += std::to_string(v_2[1]);
-                            triangle_string +=  ", \"z\": ";
-                            triangle_string += std::to_string(v_2[2]);
-                            triangle_string +=  "   },\n";
-                            triangle_string +=  "}\n";
-                            */
+                            Space4::PointT q;
+
+                            Space4::PointT::ValueType a, b, c;
+                            //ps << "length " << d[0].length();
+                            Space4::Metric::KeyType k = 
+                                Space4::Metric::morton_encode(v[0]);
+                            s_space4p->insert(k);
 
                         }
                     }
                 }
+                int size = 5; // s_space4p->size();
+
+                //implement subtree access
+               ps << "{"
+                  << "{ \"path\": " << size << "}"
+                  << "}" << std::endl;
+               //ps << "[0,0,0]]" << std::endl;
+               char buf[512];
+               while (ps.read(buf, sizeof(buf)).gcount() > 0)
+               resp.content.append(buf, ps.gcount());
+               resp.headers.resize(2);
+               resp.headers[0].name = "Content-Length";
+               resp.headers[0].value = 
+               boost::lexical_cast<std::string>(resp.content.size());
+               resp.headers[1].name = "Content-Type";
+               resp.headers[1].value = e2t[extension];
+               
 
 
 
@@ -242,17 +237,6 @@ struct occrest
 
 
 
-            /*
-               char buf[512];
-               while (is.read(buf, sizeof(buf)).gcount() > 0)
-               resp.content.append(buf, is.gcount());
-               resp.headers.resize(2);
-               resp.headers[0].name = "Content-Length";
-               resp.headers[0].value = 
-               boost::lexical_cast<std::string>(resp.content.size());
-               resp.headers[1].name = "Content-Type";
-               resp.headers[1].value = e2t[extension];
-               */
 
         }
     };
